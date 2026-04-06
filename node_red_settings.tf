@@ -6,9 +6,10 @@ resource "null_resource" "node_red_dirs" {
 
 resource "null_resource" "node_red_admin_password_hash" {
   triggers = {
-    password = sha256(var.node_red_admin_password)
-    image    = var.node_red_image
-    path     = local.node_red_admin_password_hash_path
+    password          = sha256(var.node_red_admin_password)
+    image             = var.node_red_image
+    path              = local.node_red_admin_password_hash_path
+    generator_version = "v2"
   }
 
   provisioner "local-exec" {
@@ -18,7 +19,11 @@ resource "null_resource" "node_red_admin_password_hash" {
         -e NODE_RED_ADMIN_PASSWORD \
         -v ${local.node_red_generated_dir}:/work \
         ${var.node_red_image} \
-        -lc '"'"'printf "%s\n%s\n" "$NODE_RED_ADMIN_PASSWORD" "$NODE_RED_ADMIN_PASSWORD" | node-red admin hash-pw | tr -d "\r" | tail -n 1 > /work/admin-password.hash'"'"''
+        -lc '"'"'set -euo pipefail
+        export PATH="/usr/src/node-red/node_modules/.bin:$PATH"
+        hash="$(printf "%s\n%s\n" "$NODE_RED_ADMIN_PASSWORD" "$NODE_RED_ADMIN_PASSWORD" | node-red admin hash-pw | sed -n "s/^Password: //p" | tr -d "\r")"
+        test -n "$hash"
+        printf "%s\n" "$hash" > /work/admin-password.hash'"'"''
     EOT
 
     environment = {
