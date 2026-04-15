@@ -36,6 +36,30 @@ home_assistant_dbus_host_path = "/run/dbus"
 # Public hostname label for Node-RED. Final FQDN becomes `node-red.example.com`.
 node_red_hostname = "node-red"
 
+# Enable the Homebridge container and its data directory.
+homebridge_enabled = true
+
+# Base Homebridge container name. Final name is `name_prefix + homebridge_name`.
+homebridge_name = "homebridge1"
+
+# Public hostname label for Homebridge. Final FQDN becomes `homebridge.example.com`.
+homebridge_hostname = "homebridge"
+
+# Publish the Homebridge web UI through Cloudflare and create the CNAME.
+homebridge_publish = true
+
+# Network mode for Homebridge:
+# - "shared": joins the same Docker network as Node-RED/Cloudflared and also the default bridge.
+# - "host": exposes Homebridge directly on the host LAN, which can help with HomeKit discovery.
+homebridge_network_mode = "shared"
+
+# Homebridge Config UI port and Homebridge service port.
+homebridge_ui_port = 8581
+homebridge_port    = 8581
+
+# Enable only for first-time bootstrap if you want the Homebridge UI to come up without a local setup PIN.
+homebridge_insecure_mode = false
+
 # Node-RED admin password used to generate the bcrypt hash during deploy.
 node_red_admin_password = "change-me"
 

@@ -18,16 +18,7 @@ resource "local_file" "cloudflared_config" {
     {
       tunnel_id        = cloudflare_zero_trust_tunnel_cloudflared.tunnel.id
       credentials_file = "/etc/cloudflared/credentials.json"
-      ingress = [
-        {
-          hostname = local.home_assistant_instance.hostname
-          service  = "http://host.docker.internal:8123"
-        },
-        {
-          hostname = local.node_red_instance.hostname
-          service  = "http://${local.node_red_instance.name}:1880"
-        },
-      ]
+      ingress          = local.cloudflare_ingress_rules
     }
   )
 

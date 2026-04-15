@@ -20,6 +20,12 @@ resource "docker_image" "node_red" {
   keep_locally = true
 }
 
+resource "docker_image" "homebridge" {
+  count        = var.homebridge_enabled ? 1 : 0
+  name         = var.homebridge_image
+  keep_locally = true
+}
+
 resource "docker_image" "cloudflared" {
   name         = var.cloudflared_image
   keep_locally = true

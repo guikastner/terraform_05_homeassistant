@@ -3,6 +3,7 @@ output "service_urls" {
   value = {
     home_assistant_public = var.base_domain != "" ? "https://${local.home_assistant_instance.hostname}" : null
     node_red_public       = var.base_domain != "" ? "https://${local.node_red_instance.hostname}" : null
+    homebridge_public     = var.homebridge_enabled && var.homebridge_publish && var.base_domain != "" ? "https://${local.homebridge_instance.hostname}" : null
   }
 }
 
@@ -11,6 +12,7 @@ output "service_hostnames" {
   value = {
     home_assistant = local.home_assistant_instance.hostname
     node_red       = local.node_red_instance.hostname
+    homebridge     = var.homebridge_enabled && var.base_domain != "" ? local.homebridge_instance.hostname : null
   }
 }
 
@@ -19,6 +21,7 @@ output "service_container_names" {
   value = {
     home_assistant = docker_container.home_assistant.name
     node_red       = docker_container.node_red.name
+    homebridge     = var.homebridge_enabled ? docker_container.homebridge[0].name : null
     cloudflared    = docker_container.cloudflared.name
   }
 }
@@ -28,6 +31,7 @@ output "service_data_dirs" {
   value = {
     home_assistant = local.home_assistant_data_dir
     node_red       = local.node_red_data_dir
+    homebridge     = var.homebridge_enabled ? local.homebridge_data_dir : null
   }
 }
 
@@ -64,6 +68,10 @@ output "deployment_summary" {
       node_red = {
         container_name = docker_container.node_red.name
         hostname       = local.node_red_instance.hostname
+      }
+      homebridge = {
+        container_name = var.homebridge_enabled ? docker_container.homebridge[0].name : null
+        hostname       = var.homebridge_enabled && var.base_domain != "" ? local.homebridge_instance.hostname : null
       }
     }
     cloudflare = {

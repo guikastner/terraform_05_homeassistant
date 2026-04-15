@@ -81,6 +81,65 @@ variable "node_red_image" {
   default     = "nodered/node-red:4.1.4-22"
 }
 
+variable "homebridge_image" {
+  description = "Container image for Homebridge."
+  type        = string
+  default     = "homebridge/homebridge:latest"
+}
+
+variable "homebridge_name" {
+  description = "Base name for the Homebridge container (prefix will be prepended)."
+  type        = string
+  default     = "homebridge1"
+}
+
+variable "homebridge_hostname" {
+  description = "Optional public hostname prefix for Homebridge. When empty, the container name is used."
+  type        = string
+  default     = ""
+}
+
+variable "homebridge_enabled" {
+  description = "Create the Homebridge container and its persistent data directory."
+  type        = bool
+  default     = true
+}
+
+variable "homebridge_publish" {
+  description = "Publish the Homebridge web UI through Cloudflare Tunnel and create a DNS record when base_domain is set."
+  type        = bool
+  default     = true
+}
+
+variable "homebridge_network_mode" {
+  description = "Network mode for Homebridge. Use \"shared\" to join the project Docker network or \"host\" for direct LAN exposure when HomeKit discovery requires it."
+  type        = string
+  default     = "shared"
+
+  validation {
+    condition     = contains(["shared", "host"], var.homebridge_network_mode)
+    error_message = "homebridge_network_mode must be either \"shared\" or \"host\"."
+  }
+}
+
+variable "homebridge_ui_port" {
+  description = "Internal Homebridge Config UI port exposed by the container."
+  type        = number
+  default     = 8581
+}
+
+variable "homebridge_port" {
+  description = "Homebridge service port used by HomeKit accessory communication."
+  type        = number
+  default     = 8581
+}
+
+variable "homebridge_insecure_mode" {
+  description = "Enable Homebridge insecure mode to allow the initial web UI setup without a local PIN."
+  type        = bool
+  default     = false
+}
+
 variable "node_red_hostname" {
   description = "Optional public hostname prefix for Node-RED. When empty, the container name is used."
   type        = string

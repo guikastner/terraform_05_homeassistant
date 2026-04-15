@@ -1,9 +1,8 @@
 resource "docker_container" "home_assistant" {
-  name         = local.home_assistant_instance.name
-  image        = docker_image.home_assistant.image_id
-  restart      = "unless-stopped"
-  hostname     = local.home_assistant_instance.name
-  network_mode = "host"
+  name     = local.home_assistant_instance.name
+  image    = docker_image.home_assistant.image_id
+  restart  = "unless-stopped"
+  hostname = local.home_assistant_instance.name
 
   env = [
     "TZ=${var.timezone}",
@@ -36,6 +35,16 @@ resource "docker_container" "home_assistant" {
 
   capabilities {
     add = var.home_assistant_capabilities_add
+  }
+
+  networks_advanced {
+    name    = local.network_name
+    aliases = [local.home_assistant_instance.name]
+  }
+
+  # Keep outbound internet access available while preserving private service-to-service traffic.
+  networks_advanced {
+    name = "bridge"
   }
 
   depends_on = [
@@ -83,5 +92,51 @@ resource "docker_container" "node_red" {
     local_file.node_red_settings,
     null_resource.node_red_data_dirs,
     null_resource.node_red_modules,
+  ]
+}
+
+resource "docker_container" "homebridge" {
+  count        = var.homebridge_enabled ? 1 : 0
+  name         = local.homebridge_instance.name
+  image        = docker_image.homebridge[0].image_id
+  restart      = "unless-stopped"
+  hostname     = local.homebridge_instance.name
+  network_mode = var.homebridge_network_mode == "host" ? "host" : null
+
+  env = compact([
+    "TZ=${var.timezone}",
+    "HOMEBRIDGE_CONFIG_UI=1",
+    "HOMEBRIDGE_CONFIG_UI_PORT=${var.homebridge_ui_port}",
+    "HOMEBRIDGE_PORT=${var.homebridge_port}",
+    var.homebridge_insecure_mode ? "HOMEBRIDGE_INSECURE=1" : null,
+  ])
+
+  mounts {
+    target = "/homebridge"
+    source = local.homebridge_data_dir
+    type   = "bind"
+  }
+
+  dynamic "networks_advanced" {
+    for_each = var.homebridge_network_mode == "shared" ? [1] : []
+
+    content {
+      name    = local.network_name
+      aliases = [local.homebridge_instance.name]
+    }
+  }
+
+  # Keep outbound internet access available when running in the shared Docker network.
+  dynamic "networks_advanced" {
+    for_each = var.homebridge_network_mode == "shared" ? [1] : []
+
+    content {
+      name = "bridge"
+    }
+  }
+
+  depends_on = [
+    null_resource.main_network,
+    null_resource.homebridge_data_dir,
   ]
 }
