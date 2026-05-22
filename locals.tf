@@ -37,13 +37,14 @@ locals {
   cloudflare_config_path      = abspath("${local.cloudflare_generated_dir}/config.yml")
   cloudflare_credentials_path = abspath("${local.cloudflare_generated_dir}/cloudflared-credentials.json")
 
-  homebridge_ui_service = var.homebridge_network_mode == "host" ? "http://host.docker.internal:${var.homebridge_ui_port}" : "http://${local.homebridge_instance.name}:${var.homebridge_ui_port}"
+  home_assistant_service = var.home_assistant_network_mode == "host" ? "http://host.docker.internal:8123" : "http://${local.home_assistant_instance.name}:8123"
+  homebridge_ui_service  = var.homebridge_network_mode == "host" ? "http://host.docker.internal:${var.homebridge_ui_port}" : "http://${local.homebridge_instance.name}:${var.homebridge_ui_port}"
 
   cloudflare_ingress_rules = concat(
     [
       {
         hostname = local.home_assistant_instance.hostname
-        service  = "http://${local.home_assistant_instance.name}:8123"
+        service  = local.home_assistant_service
       },
       {
         hostname = local.node_red_instance.hostname

@@ -21,6 +21,11 @@ home_assistant_name = "homeassistant1"
 # Public hostname label for Home Assistant. Final FQDN becomes `homeassistant.example.com`.
 home_assistant_hostname = "homeassistant"
 
+# Network mode for Home Assistant:
+# - "shared": joins the same Docker network as Node-RED/Cloudflared and also the default bridge.
+# - "host": exposes Home Assistant directly on the host LAN, which can help with discovery-heavy integrations.
+home_assistant_network_mode = "shared"
+
 # Trusted reverse proxy CIDRs/IPs written into Home Assistant configuration.
 home_assistant_trusted_proxies = [
   "172.17.0.0/16",
@@ -38,6 +43,9 @@ node_red_hostname = "node-red"
 
 # Enable the Homebridge container and its data directory.
 homebridge_enabled = true
+
+# Pin the Homebridge container to a specific tested tag instead of `latest`.
+homebridge_image = "homebridge/homebridge:2026-05-11"
 
 # Base Homebridge container name. Final name is `name_prefix + homebridge_name`.
 homebridge_name = "homebridge1"

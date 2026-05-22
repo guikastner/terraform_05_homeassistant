@@ -57,6 +57,17 @@ variable "home_assistant_image" {
   default     = "homeassistant/home-assistant:stable"
 }
 
+variable "home_assistant_network_mode" {
+  description = "Network mode for Home Assistant. Use \"shared\" to join the project Docker network or \"host\" for direct LAN exposure when discovery integrations require it."
+  type        = string
+  default     = "shared"
+
+  validation {
+    condition     = contains(["shared", "host"], var.home_assistant_network_mode)
+    error_message = "home_assistant_network_mode must be either \"shared\" or \"host\"."
+  }
+}
+
 variable "home_assistant_capabilities_add" {
   description = "Linux capabilities added to the Home Assistant container for local device integrations."
   type        = list(string)
@@ -84,7 +95,7 @@ variable "node_red_image" {
 variable "homebridge_image" {
   description = "Container image for Homebridge."
   type        = string
-  default     = "homebridge/homebridge:latest"
+  default     = "homebridge/homebridge:2026-05-11"
 }
 
 variable "homebridge_name" {

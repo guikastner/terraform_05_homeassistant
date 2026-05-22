@@ -3,13 +3,13 @@
 Infrastructure as code to provision a base stack for Home Assistant and Node-RED using OpenTofu and the Docker provider. The environment exposes both services through a Cloudflare Tunnel and keeps persistent data on local bind mounts.
 
 ## Components
-- 1× Home Assistant container (`homeassistant/home-assistant:stable`): name comes from `name_prefix` + `home_assistant_name` (default `lab-homeassistant1`) and stores its config in a bind mount.
-- 1× Node-RED container (`nodered/node-red:4.1.4-22`): name comes from `name_prefix` + `node_red_name` (default `lab-node1`) on port `1880` inside the private mesh.
-- 1× Homebridge container (`homebridge/homebridge:latest`): optional service named from `name_prefix` + `homebridge_name` (default `lab-homebridge1`) with persistent `/homebridge` storage and optional Cloudflare publication for the web UI.
-- 1× Cloudflare Tunnel agent (`cloudflare/cloudflared:latest`): default `lab-cloudflared1`, routing external hostnames to Home Assistant and Node-RED. Tunnel and DNS records are created via the Cloudflare provider.
+- 1x Home Assistant container (`homeassistant/home-assistant:stable`): name comes from `name_prefix` + `home_assistant_name` (default `lab-homeassistant1`) and stores its config in a bind mount.
+- 1x Node-RED container (`nodered/node-red:4.1.4-22`): name comes from `name_prefix` + `node_red_name` (default `lab-node1`) on port `1880` inside the private mesh.
+- 1x Homebridge container (`homebridge/homebridge:2026-05-11` by default): optional service named from `name_prefix` + `homebridge_name` (default `lab-homebridge1`) with persistent `/homebridge` storage and optional Cloudflare publication for the web UI.
+- 1x Cloudflare Tunnel agent (`cloudflare/cloudflared:latest`): default `lab-cloudflared1`, routing external hostnames to Home Assistant and Node-RED. Tunnel and DNS records are created via the Cloudflare provider.
 - Internal bridge network defined by `network_name` for private inter-container traffic.
 - Node-RED and Cloudflared are attached to Docker `bridge` to keep outbound connectivity while preserving private service-to-service traffic on `network_name`.
-- Home Assistant joins the shared project Docker network and the default Docker `bridge` network.
+- Home Assistant can run either on the shared Docker network or in host mode, controlled by `home_assistant_network_mode`.
 - Homebridge can run either on the shared Docker network or in host mode, controlled by `homebridge_network_mode`.
 
 ## Scope of this base
@@ -24,7 +24,8 @@ Infrastructure as code to provision a base stack for Home Assistant and Node-RED
 - `configuration.yaml` is rendered by OpenTofu and mounted read-only into `/config/configuration.yaml`.
 - The generated Home Assistant config enables reverse-proxy support using `use_x_forwarded_for` and `trusted_proxies`.
 - Cloudflare creates a dedicated hostname for Home Assistant through the same tunnel used by Node-RED. The public label can be overridden with `home_assistant_hostname`.
-- Cloudflare reaches Home Assistant through the shared Docker network on port `8123`.
+- `home_assistant_network_mode = "shared"` places Home Assistant on the project Docker network and also attaches it to Docker `bridge` for outbound access.
+- `home_assistant_network_mode = "host"` exposes Home Assistant directly on the host network; Cloudflare switches automatically to `host.docker.internal:8123` for tunnel ingress.
 - The container adds `NET_ADMIN` and `NET_RAW` by default to improve local Bluetooth/device integrations.
 - Bluetooth support is enabled by default by bind-mounting the host `dbus` runtime (`/run/dbus`) into the container and exporting `DBUS_SYSTEM_BUS_ADDRESS`, which lets Home Assistant talk to the host BlueZ adapter.
 
@@ -35,7 +36,8 @@ Infrastructure as code to provision a base stack for Home Assistant and Node-RED
 - Before the Node-RED container starts, the packages defined in `node_red_extra_modules` are installed into its data directory via the Node-RED image (`npm install ...`).
 
 ## Homebridge
-- Homebridge runs from `homebridge/homebridge:latest`.
+- Homebridge runs from `homebridge/homebridge:2026-05-11` by default.
+- Override the image/tag with `homebridge_image` in `terraform.tfvars` when you want to pin a different tested release.
 - Persistent data is stored in `/DATA/AppData/<name_prefix><homebridge_name>`.
 - The container mounts that directory at `/homebridge`, which keeps the Homebridge config, database, and installed plugins.
 - `homebridge_network_mode = "shared"` places the container on the same Docker network as the other services and also attaches it to Docker `bridge` for outbound access.
@@ -49,7 +51,7 @@ Infrastructure as code to provision a base stack for Home Assistant and Node-RED
 
 ## Prerequisites
 - Docker Engine running locally and accessible via `unix:///var/run/docker.sock` (default).
-- OpenTofu ≥ 1.6.2 installed (`tofu` CLI).
+- OpenTofu >= 1.6.2 installed (`tofu` CLI).
 - Cloudflare account with permissions to create tunnels and DNS records for your domain.
 
 ## Quick start
@@ -71,7 +73,9 @@ Supply real values in `terraform.tfvars` (keep it out of version control). Below
 | `name_prefix` | Optional prefix applied to all names (containers, hostnames, data dirs). | `lab-` |
 | `network_name` | Docker network name shared by all containers in this project. | `lab-net` |
 | `delete_data_on_destroy` | When `true`, `tofu destroy` also removes persistent bind mounts and generated local files. | `true` |
-| `home_assistant_hostname` | Optional public hostname label for Home Assistant. | `homeassistant` |
+| `home_assistant_name` | Base name for the Home Assistant container. | `homeassistant1` |
+| `home_assistant_hostname` | Optional public hostname prefix for Home Assistant. | `homeassistant` |
+| `home_assistant_network_mode` | `shared` to join the project Docker network, or `host` for direct LAN exposure. | `shared` |
 | `home_assistant_trusted_proxies` | Trusted proxy CIDRs/IPs written into Home Assistant HTTP config. | `["172.17.0.0/16"]` |
 | `home_assistant_bluetooth_enabled` | Mount the host `dbus` runtime into Home Assistant for Bluetooth/BlueZ integrations. | `true` |
 | `home_assistant_dbus_host_path` | Host path mounted as `/run/dbus` when Bluetooth support is enabled. | `/run/dbus` |
@@ -80,6 +84,7 @@ Supply real values in `terraform.tfvars` (keep it out of version control). Below
 | `node_red_hostname` | Optional public hostname label for Node-RED. | `node-red` |
 | `node_red_extra_modules` | Optional extra Node-RED packages to install. | `["node-red-contrib-xlsx-to-json"]` |
 | `homebridge_enabled` | Whether Homebridge is created. | `true` |
+| `homebridge_image` | Pinned Homebridge container image/tag. | `homebridge/homebridge:2026-05-11` |
 | `homebridge_name` | Base container name for Homebridge. | `homebridge1` |
 | `homebridge_hostname` | Optional public hostname label for the Homebridge UI. | `homebridge` |
 | `homebridge_publish` | Publish the Homebridge UI through Cloudflare and create a CNAME. | `true` |
@@ -100,7 +105,6 @@ Supply real values in `terraform.tfvars` (keep it out of version control). Below
 ## Project structure
 - `main.tf` / `locals.tf` / `variables.tf`: Providers, shared locals, and input variables.
 - `infrastructure.tf`: Network and base images.
-- `containers.tf`: Home Assistant and Node-RED containers.
 - `containers.tf`: Home Assistant, Node-RED, and optional Homebridge containers.
 - `home_assistant_config.tf`: Home Assistant base config generation and `/config` bootstrap files.
 - `cloudflare.tf`: Cloudflare tunnel config generation and container wiring.
@@ -112,7 +116,7 @@ Supply real values in `terraform.tfvars` (keep it out of version control). Below
 ## Operational notes
 - Users access Home Assistant and Node-RED through Cloudflare CNAMEs; no application port is published to the host.
 - Network model:
-  - Home Assistant: `network_name` (private service traffic) + `bridge` (outbound internet).
+  - Home Assistant: `network_name` + `bridge` when `home_assistant_network_mode = "shared"`, or `host` when `home_assistant_network_mode = "host"`.
   - Node-RED: `network_name` (private service traffic) + `bridge` (outbound internet).
   - Homebridge: `network_name` + `bridge` when `homebridge_network_mode = "shared"`, or `host` when `homebridge_network_mode = "host"`.
   - Cloudflared: `network_name` + `bridge`, with `host.docker.internal` mapped to the host gateway for Home Assistant ingress.

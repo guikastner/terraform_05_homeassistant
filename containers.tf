@@ -1,8 +1,9 @@
 resource "docker_container" "home_assistant" {
-  name     = local.home_assistant_instance.name
-  image    = docker_image.home_assistant.image_id
-  restart  = "unless-stopped"
-  hostname = local.home_assistant_instance.name
+  name         = local.home_assistant_instance.name
+  image        = docker_image.home_assistant.image_id
+  restart      = "unless-stopped"
+  hostname     = local.home_assistant_instance.name
+  network_mode = var.home_assistant_network_mode == "host" ? "host" : null
 
   env = [
     "TZ=${var.timezone}",
@@ -37,20 +38,29 @@ resource "docker_container" "home_assistant" {
     add = var.home_assistant_capabilities_add
   }
 
-  networks_advanced {
-    name    = local.network_name
-    aliases = [local.home_assistant_instance.name]
+  dynamic "networks_advanced" {
+    for_each = var.home_assistant_network_mode == "shared" ? [1] : []
+
+    content {
+      name    = local.network_name
+      aliases = [local.home_assistant_instance.name]
+    }
   }
 
   # Keep outbound internet access available while preserving private service-to-service traffic.
-  networks_advanced {
-    name = "bridge"
+  dynamic "networks_advanced" {
+    for_each = var.home_assistant_network_mode == "shared" ? [1] : []
+
+    content {
+      name = "bridge"
+    }
   }
 
   depends_on = [
     local_file.home_assistant_configuration,
     null_resource.home_assistant_data_dir,
     null_resource.home_assistant_data_files,
+    null_resource.main_network,
   ]
 }
 
