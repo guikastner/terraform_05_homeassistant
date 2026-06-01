@@ -54,7 +54,7 @@ variable "home_assistant_trusted_proxies" {
 variable "home_assistant_image" {
   description = "Container image for Home Assistant."
   type        = string
-  default     = "homeassistant/home-assistant:stable"
+  default     = "ghcr.io/home-assistant/home-assistant:stable"
 }
 
 variable "home_assistant_network_mode" {
@@ -71,7 +71,7 @@ variable "home_assistant_network_mode" {
 variable "home_assistant_capabilities_add" {
   description = "Linux capabilities added to the Home Assistant container for local device integrations."
   type        = list(string)
-  default     = ["NET_ADMIN", "NET_RAW"]
+  default     = ["CAP_NET_ADMIN", "CAP_NET_RAW"]
 }
 
 variable "home_assistant_bluetooth_enabled" {
@@ -161,6 +161,18 @@ variable "cloudflared_image" {
   description = "Container image for Cloudflare Tunnel agent."
   type        = string
   default     = "cloudflare/cloudflared:latest"
+}
+
+variable "autoheal_enabled" {
+  description = "Run a Docker autoheal sidecar that restarts containers marked unhealthy by their healthchecks."
+  type        = bool
+  default     = true
+}
+
+variable "autoheal_image" {
+  description = "Container image for the Docker autoheal sidecar."
+  type        = string
+  default     = "willfarrell/autoheal:latest"
 }
 
 variable "node_red_admin_username" {

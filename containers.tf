@@ -23,6 +23,19 @@ resource "docker_container" "home_assistant" {
     read_only = true
   }
 
+  healthcheck {
+    test         = ["CMD", "curl", "-fsS", "http://127.0.0.1:8123/"]
+    interval     = "30s"
+    timeout      = "10s"
+    retries      = 3
+    start_period = "2m0s"
+  }
+
+  labels {
+    label = "autoheal"
+    value = "true"
+  }
+
   dynamic "mounts" {
     for_each = var.home_assistant_bluetooth_enabled ? [1] : []
 
@@ -87,6 +100,19 @@ resource "docker_container" "node_red" {
     read_only = true
   }
 
+  healthcheck {
+    test         = ["CMD", "curl", "-fsS", "http://127.0.0.1:1880/"]
+    interval     = "30s"
+    timeout      = "10s"
+    retries      = 3
+    start_period = "1m0s"
+  }
+
+  labels {
+    label = "autoheal"
+    value = "true"
+  }
+
   networks_advanced {
     name    = local.network_name
     aliases = [local.node_red_instance.name]
@@ -127,6 +153,19 @@ resource "docker_container" "homebridge" {
     type   = "bind"
   }
 
+  healthcheck {
+    test         = ["CMD", "curl", "-fsS", "http://127.0.0.1:${var.homebridge_ui_port}/"]
+    interval     = "30s"
+    timeout      = "10s"
+    retries      = 3
+    start_period = "1m30s"
+  }
+
+  labels {
+    label = "autoheal"
+    value = "true"
+  }
+
   dynamic "networks_advanced" {
     for_each = var.homebridge_network_mode == "shared" ? [1] : []
 
@@ -149,4 +188,24 @@ resource "docker_container" "homebridge" {
     null_resource.main_network,
     null_resource.homebridge_data_dir,
   ]
+}
+
+resource "docker_container" "autoheal" {
+  count    = var.autoheal_enabled ? 1 : 0
+  name     = "${var.name_prefix}autoheal1"
+  image    = docker_image.autoheal[0].image_id
+  restart  = "unless-stopped"
+  hostname = "${var.name_prefix}autoheal1"
+
+  env = [
+    "AUTOHEAL_CONTAINER_LABEL=autoheal",
+    "AUTOHEAL_INTERVAL=30",
+    "AUTOHEAL_START_PERIOD=120",
+  ]
+
+  mounts {
+    target = "/var/run/docker.sock"
+    source = "/var/run/docker.sock"
+    type   = "bind"
+  }
 }

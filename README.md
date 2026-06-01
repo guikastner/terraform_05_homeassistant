@@ -3,10 +3,11 @@
 Infrastructure as code to provision a base stack for Home Assistant and Node-RED using OpenTofu and the Docker provider. The environment exposes both services through a Cloudflare Tunnel and keeps persistent data on local bind mounts.
 
 ## Components
-- 1x Home Assistant container (`homeassistant/home-assistant:stable`): name comes from `name_prefix` + `home_assistant_name` (default `lab-homeassistant1`) and stores its config in a bind mount.
+- 1x Home Assistant container (`ghcr.io/home-assistant/home-assistant:stable`): name comes from `name_prefix` + `home_assistant_name` (default `lab-homeassistant1`) and stores its config in a bind mount.
 - 1x Node-RED container (`nodered/node-red:4.1.4-22`): name comes from `name_prefix` + `node_red_name` (default `lab-node1`) on port `1880` inside the private mesh.
 - 1x Homebridge container (`homebridge/homebridge:2026-05-11` by default): optional service named from `name_prefix` + `homebridge_name` (default `lab-homebridge1`) with persistent `/homebridge` storage and optional Cloudflare publication for the web UI.
 - 1x Cloudflare Tunnel agent (`cloudflare/cloudflared:latest`): default `lab-cloudflared1`, routing external hostnames to Home Assistant and Node-RED. Tunnel and DNS records are created via the Cloudflare provider.
+- 1x autoheal sidecar (`willfarrell/autoheal:latest`): watches Docker healthchecks and restarts unhealthy application containers.
 - Internal bridge network defined by `network_name` for private inter-container traffic.
 - Node-RED and Cloudflared are attached to Docker `bridge` to keep outbound connectivity while preserving private service-to-service traffic on `network_name`.
 - Home Assistant can run either on the shared Docker network or in host mode, controlled by `home_assistant_network_mode`.
@@ -19,7 +20,7 @@ Infrastructure as code to provision a base stack for Home Assistant and Node-RED
 - This is a base deployment: specific Home Assistant integrations that depend on multicast, mDNS, USB passthrough, or host networking may require additional adjustments later.
 
 ## Home Assistant
-- Home Assistant runs from `homeassistant/home-assistant:stable`.
+- Home Assistant runs from `ghcr.io/home-assistant/home-assistant:stable`.
 - Persistent data is stored in `/DATA/AppData/<name_prefix><home_assistant_name>`.
 - `configuration.yaml` is rendered by OpenTofu and mounted read-only into `/config/configuration.yaml`.
 - The generated Home Assistant config enables reverse-proxy support using `use_x_forwarded_for` and `trusted_proxies`.
@@ -48,6 +49,12 @@ Infrastructure as code to provision a base stack for Home Assistant and Node-RED
 - OpenTofu creates the tunnel using only the tunnel name and account ID; the tunnel secret is generated automatically.
 - Ingress rules and CNAME records are generated for the Home Assistant and Node-RED hostnames.
 - Public CNAME labels are configurable through `home_assistant_hostname` and `node_red_hostname`. When empty, the container names are used.
+
+## Self-healing
+- Home Assistant, Node-RED, and Homebridge use Docker healthchecks against their local HTTP endpoints.
+- All service containers use `restart = "unless-stopped"` so Docker restarts them after process crashes and daemon/host restarts.
+- When `autoheal_enabled = true`, the autoheal sidecar watches containers labeled `autoheal=true` and restarts them if Docker marks them unhealthy.
+- Cloudflared relies on `restart = "unless-stopped"` because the official image does not include a shell or HTTP client for an internal healthcheck.
 
 ## Prerequisites
 - Docker Engine running locally and accessible via `unix:///var/run/docker.sock` (default).
@@ -92,6 +99,8 @@ Supply real values in `terraform.tfvars` (keep it out of version control). Below
 | `homebridge_ui_port` | Homebridge Config UI port. | `8581` |
 | `homebridge_port` | Homebridge service port used by the container. | `8581` |
 | `homebridge_insecure_mode` | Enable insecure bootstrap mode for the Homebridge UI. | `false` |
+| `autoheal_enabled` | Run a sidecar that restarts unhealthy containers. | `true` |
+| `autoheal_image` | Pinned autoheal container image/tag. | `willfarrell/autoheal:latest` |
 | `cloudflare_api_token` | API token with tunnel + DNS permissions. | `CLOUDFLARE_API_TOKEN` |
 | `cloudflare_zone_id` | Cloudflare Zone ID where CNAMEs are created. | `CLOUDFLARE_ZONE_ID` |
 | `cloudflare_tunnel.name` | Name of the tunnel to create. | `lab-tunnel` |
@@ -105,7 +114,7 @@ Supply real values in `terraform.tfvars` (keep it out of version control). Below
 ## Project structure
 - `main.tf` / `locals.tf` / `variables.tf`: Providers, shared locals, and input variables.
 - `infrastructure.tf`: Network and base images.
-- `containers.tf`: Home Assistant, Node-RED, and optional Homebridge containers.
+- `containers.tf`: Home Assistant, Node-RED, optional Homebridge, and optional autoheal containers.
 - `home_assistant_config.tf`: Home Assistant base config generation and `/config` bootstrap files.
 - `cloudflare.tf`: Cloudflare tunnel config generation and container wiring.
 - `cloudflare_dns.tf`: Tunnel resource, ingress rules, and DNS records.
@@ -127,6 +136,7 @@ Supply real values in `terraform.tfvars` (keep it out of version control). Below
 - `tofu destroy` also removes those bind mounts and the generated `build/` files when `delete_data_on_destroy = true`.
 - Home Assistant startup depends on OpenTofu-generated config plus placeholder include files (`automations.yaml`, `scripts.yaml`, `scenes.yaml`, `themes/`) so the first boot works without manual file creation.
 - The Cloudflare container runs with `--no-autoupdate`; update the image tag in `variables.tf` to control upgrades.
+- Docker healthchecks can take up to a few minutes after container creation before autoheal begins acting, which prevents restarts during normal startup.
 
 ## Next steps
 - Provide real tunnel credentials and domain values, then run `tofu apply`.

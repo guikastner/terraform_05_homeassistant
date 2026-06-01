@@ -10,9 +10,14 @@ resource "null_resource" "main_network" {
   }
 }
 
+data "docker_registry_image" "home_assistant" {
+  name = var.home_assistant_image
+}
+
 resource "docker_image" "home_assistant" {
-  name         = var.home_assistant_image
-  keep_locally = true
+  name          = var.home_assistant_image
+  keep_locally  = true
+  pull_triggers = [data.docker_registry_image.home_assistant.sha256_digest]
 }
 
 resource "docker_image" "node_red" {
@@ -28,5 +33,11 @@ resource "docker_image" "homebridge" {
 
 resource "docker_image" "cloudflared" {
   name         = var.cloudflared_image
+  keep_locally = true
+}
+
+resource "docker_image" "autoheal" {
+  count        = var.autoheal_enabled ? 1 : 0
+  name         = var.autoheal_image
   keep_locally = true
 }
