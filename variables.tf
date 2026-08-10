@@ -4,6 +4,21 @@ variable "docker_host" {
   default     = "unix:///var/run/docker.sock"
 }
 
+variable "docker_log_driver" {
+  description = "Docker logging driver used by project containers."
+  type        = string
+  default     = "json-file"
+}
+
+variable "docker_log_opts" {
+  description = "Docker logging options used by project containers."
+  type        = map(string)
+  default = {
+    max-size = "50m"
+    max-file = "3"
+  }
+}
+
 variable "base_domain" {
   description = "Base domain used to build Cloudflare CNAMEs for published services (e.g. example.com)."
   type        = string

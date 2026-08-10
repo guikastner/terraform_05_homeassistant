@@ -4,6 +4,8 @@ resource "docker_container" "home_assistant" {
   restart      = "unless-stopped"
   hostname     = local.home_assistant_instance.name
   network_mode = var.home_assistant_network_mode == "host" ? "host" : null
+  log_driver   = var.docker_log_driver
+  log_opts     = var.docker_log_opts
 
   env = [
     "TZ=${var.timezone}",
@@ -78,10 +80,12 @@ resource "docker_container" "home_assistant" {
 }
 
 resource "docker_container" "node_red" {
-  name     = local.node_red_instance.name
-  image    = docker_image.node_red.image_id
-  restart  = "unless-stopped"
-  hostname = local.node_red_instance.name
+  name       = local.node_red_instance.name
+  image      = docker_image.node_red.image_id
+  restart    = "unless-stopped"
+  hostname   = local.node_red_instance.name
+  log_driver = var.docker_log_driver
+  log_opts   = var.docker_log_opts
 
   env = [
     "TZ=${var.timezone}"
@@ -138,6 +142,8 @@ resource "docker_container" "homebridge" {
   restart      = "unless-stopped"
   hostname     = local.homebridge_instance.name
   network_mode = var.homebridge_network_mode == "host" ? "host" : null
+  log_driver   = var.docker_log_driver
+  log_opts     = var.docker_log_opts
 
   env = compact([
     "TZ=${var.timezone}",
@@ -154,7 +160,7 @@ resource "docker_container" "homebridge" {
   }
 
   healthcheck {
-    test         = ["CMD", "curl", "-fsS", "http://127.0.0.1:${var.homebridge_ui_port}/"]
+    test         = ["CMD-SHELL", "curl -fsS http://127.0.0.1:${var.homebridge_ui_port}/ >/dev/null && node -e 'const net=require(\"net\"); const cfg=require(\"/homebridge/config.json\"); const port=Number(cfg.bridge&&cfg.bridge.port); if (!port) process.exit(0); const s=net.createConnection({host:\"127.0.0.1\",port,timeout:3000},()=>{s.end();process.exit(0)}); s.on(\"timeout\",()=>{s.destroy();process.exit(1)}); s.on(\"error\",()=>process.exit(1));'"]
     interval     = "30s"
     timeout      = "10s"
     retries      = 3
@@ -191,11 +197,13 @@ resource "docker_container" "homebridge" {
 }
 
 resource "docker_container" "autoheal" {
-  count    = var.autoheal_enabled ? 1 : 0
-  name     = "${var.name_prefix}autoheal1"
-  image    = docker_image.autoheal[0].image_id
-  restart  = "unless-stopped"
-  hostname = "${var.name_prefix}autoheal1"
+  count      = var.autoheal_enabled ? 1 : 0
+  name       = "${var.name_prefix}autoheal1"
+  image      = docker_image.autoheal[0].image_id
+  restart    = "unless-stopped"
+  hostname   = "${var.name_prefix}autoheal1"
+  log_driver = var.docker_log_driver
+  log_opts   = var.docker_log_opts
 
   env = [
     "AUTOHEAL_CONTAINER_LABEL=autoheal",

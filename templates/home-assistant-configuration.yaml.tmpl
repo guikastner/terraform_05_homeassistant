@@ -12,6 +12,37 @@ http:
 frontend:
   themes: !include_dir_merge_named themes
 
+recorder:
+  purge_keep_days: 2
+  auto_purge: true
+  commit_interval: 30
+  exclude:
+    domains:
+      - automation
+      - updater
+    entity_globs:
+      - sensor.*_download_speed
+      - sensor.*_upload_speed
+      - button.xiaomi_*_info
+
+lovelace:
+  mode: storage
+  dashboards:
+    aspirador-simples:
+      mode: yaml
+      title: Aspirador
+      icon: mdi:robot-vacuum
+      show_in_sidebar: true
+      require_admin: false
+      filename: dashboards/aspirador-simples.yaml
+    aspirador-hacs:
+      mode: yaml
+      title: Aspirador HACS
+      icon: mdi:map
+      show_in_sidebar: true
+      require_admin: false
+      filename: dashboards/aspirador-hacs.yaml
+
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml

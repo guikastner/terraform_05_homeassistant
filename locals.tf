@@ -29,6 +29,12 @@ locals {
 
   home_assistant_generated_dir      = abspath("${path.module}/build/home-assistant")
   home_assistant_config_path        = abspath("${local.home_assistant_generated_dir}/configuration.yaml")
+  home_assistant_maintenance_dir    = abspath("${local.home_assistant_data_dir}/maintenance")
+  home_assistant_recorder_limit_job = abspath("${local.home_assistant_maintenance_dir}/limit_recorder_db.sh")
+  home_assistant_recorder_limit_log = abspath("${local.home_assistant_maintenance_dir}/limit_recorder_db.log")
+  homebridge_maintenance_dir        = abspath("${local.homebridge_data_dir}/maintenance")
+  homebridge_androidtv_healer_job   = abspath("${local.homebridge_maintenance_dir}/heal_androidtv_remote.sh")
+  homebridge_androidtv_healer_log   = abspath("${local.homebridge_maintenance_dir}/heal_androidtv_remote.log")
   node_red_generated_dir            = abspath("${path.module}/build/node-red")
   node_red_settings_path            = abspath("${local.node_red_generated_dir}/settings.js")
   node_red_admin_password_hash_path = abspath("${local.node_red_generated_dir}/admin-password.hash")

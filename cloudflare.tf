@@ -39,18 +39,35 @@ resource "local_sensitive_file" "cloudflared_credentials" {
 }
 
 resource "docker_container" "cloudflared" {
-  name     = "${var.name_prefix}cloudflared1"
-  image    = docker_image.cloudflared.image_id
-  restart  = "unless-stopped"
-  hostname = "${var.name_prefix}cloudflared1"
+  name       = "${var.name_prefix}cloudflared1"
+  image      = docker_image.cloudflared.image_id
+  restart    = "unless-stopped"
+  hostname   = "${var.name_prefix}cloudflared1"
+  log_driver = var.docker_log_driver
+  log_opts   = var.docker_log_opts
 
   command = [
     "--config",
     "/etc/cloudflared/config.yml",
     "tunnel",
+    "--metrics",
+    "127.0.0.1:20241",
     "--no-autoupdate",
     "run"
   ]
+
+  healthcheck {
+    test         = ["CMD", "cloudflared", "tunnel", "--metrics", "127.0.0.1:20241", "ready"]
+    interval     = "30s"
+    timeout      = "10s"
+    retries      = 3
+    start_period = "2m"
+  }
+
+  labels {
+    label = "autoheal"
+    value = "true"
+  }
 
   mounts {
     target    = "/etc/cloudflared/config.yml"

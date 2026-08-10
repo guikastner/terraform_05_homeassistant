@@ -51,10 +51,12 @@ Infrastructure as code to provision a base stack for Home Assistant and Node-RED
 - Public CNAME labels are configurable through `home_assistant_hostname` and `node_red_hostname`. When empty, the container names are used.
 
 ## Self-healing
-- Home Assistant, Node-RED, and Homebridge use Docker healthchecks against their local HTTP endpoints.
+- Home Assistant and Node-RED use Docker healthchecks against their local HTTP endpoints.
+- Homebridge checks both the Config UI HTTP endpoint and the HomeKit bridge TCP port from `/homebridge/config.json`.
+- A cron watchdog checks the `homebridge-androidtv` plugin API every two minutes and restarts Homebridge only when an Android TV accessory is online, paired, started, reachable on its remote port, but stuck as `powered=false` with recent `secureConnect` timeout logs.
+- Cloudflared exposes its local management readiness endpoint and uses `cloudflared tunnel ready` as a Docker healthcheck.
 - All service containers use `restart = "unless-stopped"` so Docker restarts them after process crashes and daemon/host restarts.
 - When `autoheal_enabled = true`, the autoheal sidecar watches containers labeled `autoheal=true` and restarts them if Docker marks them unhealthy.
-- Cloudflared relies on `restart = "unless-stopped"` because the official image does not include a shell or HTTP client for an internal healthcheck.
 
 ## Prerequisites
 - Docker Engine running locally and accessible via `unix:///var/run/docker.sock` (default).
