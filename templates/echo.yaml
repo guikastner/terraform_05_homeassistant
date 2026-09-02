@@ -140,6 +140,247 @@ views:
                       - switch.echo_de_guilherme_do_not_disturb
                       - switch.echo_dot_de_guilherme_do_not_disturb
 
+  # -------------------------------------------------------------------- Musica
+  # Requer a integracao HACS alexa_media_player configurada (login Amazon).
+  # Ela e quem cria os media_player das Echos; a integracao core alexa_devices
+  # nao cria nenhum.
+  - title: Musica
+    path: musica
+    icon: mdi:music
+    type: sections
+    max_columns: 3
+    badges:
+      - type: entity
+        entity: media_player.echo_de_guilherme
+        name: Echo
+      - type: entity
+        entity: media_player.echo_dot_de_guilherme
+        name: Echo Dot
+
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Echo de Guilherme
+            icon: mdi:speaker
+          - type: media-control
+            entity: media_player.echo_de_guilherme
+          - type: tile
+            entity: media_player.echo_de_guilherme
+            name: Volume
+            icon: mdi:volume-high
+            features:
+              - type: media-player-volume-slider
+          - type: grid
+            columns: 4
+            square: true
+            cards:
+              - type: button
+                name: Anterior
+                icon: mdi:skip-previous
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_previous_track
+                  target:
+                    entity_id: media_player.echo_de_guilherme
+              - type: button
+                name: Play/Pause
+                icon: mdi:play-pause
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_play_pause
+                  target:
+                    entity_id: media_player.echo_de_guilherme
+              - type: button
+                name: Proxima
+                icon: mdi:skip-next
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_next_track
+                  target:
+                    entity_id: media_player.echo_de_guilherme
+              - type: button
+                name: Parar
+                icon: mdi:stop
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_stop
+                  target:
+                    entity_id: media_player.echo_de_guilherme
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Echo Dot de Guilherme
+            icon: mdi:speaker-wireless
+          - type: media-control
+            entity: media_player.echo_dot_de_guilherme
+          - type: tile
+            entity: media_player.echo_dot_de_guilherme
+            name: Volume
+            icon: mdi:volume-high
+            features:
+              - type: media-player-volume-slider
+          - type: grid
+            columns: 4
+            square: true
+            cards:
+              - type: button
+                name: Anterior
+                icon: mdi:skip-previous
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_previous_track
+                  target:
+                    entity_id: media_player.echo_dot_de_guilherme
+              - type: button
+                name: Play/Pause
+                icon: mdi:play-pause
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_play_pause
+                  target:
+                    entity_id: media_player.echo_dot_de_guilherme
+              - type: button
+                name: Proxima
+                icon: mdi:skip-next
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_next_track
+                  target:
+                    entity_id: media_player.echo_dot_de_guilherme
+              - type: button
+                name: Parar
+                icon: mdi:stop
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_stop
+                  target:
+                    entity_id: media_player.echo_dot_de_guilherme
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Comandos de voz
+            icon: mdi:microphone-message
+          # media_content_type "custom" faz a Alexa executar o texto como se
+          # ele tivesse sido falado; e o jeito de disparar qualquer skill.
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: button
+                name: Tocar radio
+                icon: mdi:radio
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.play_media
+                  target:
+                    entity_id: media_player.echo_de_guilherme
+                  data:
+                    media_content_type: custom
+                    media_content_id: tocar radio Gaucha
+              - type: button
+                name: Noticias
+                icon: mdi:newspaper
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.play_media
+                  target:
+                    entity_id: media_player.echo_de_guilherme
+                  data:
+                    media_content_type: custom
+                    media_content_id: quais sao as noticias
+              - type: button
+                name: Previsao do tempo
+                icon: mdi:weather-partly-cloudy
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.play_media
+                  target:
+                    entity_id: media_player.echo_de_guilherme
+                  data:
+                    media_content_type: custom
+                    media_content_id: como esta o tempo
+              - type: button
+                name: Musica relaxante
+                icon: mdi:music-note
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.play_media
+                  target:
+                    entity_id: media_player.echo_de_guilherme
+                  data:
+                    media_content_type: custom
+                    media_content_id: tocar musica relaxante
+              - type: button
+                name: Parar musica
+                icon: mdi:stop-circle
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_stop
+                  target:
+                    entity_id:
+                      - media_player.echo_de_guilherme
+                      - media_player.echo_dot_de_guilherme
+              - type: button
+                name: Timer 10 min
+                icon: mdi:timer-sand
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.play_media
+                  target:
+                    entity_id: media_player.echo_de_guilherme
+                  data:
+                    media_content_type: custom
+                    media_content_id: marcar um timer de dez minutos
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Volume rapido
+            icon: mdi:volume-medium
+          - type: grid
+            columns: 3
+            square: false
+            cards:
+              - type: button
+                name: 20%
+                icon: mdi:volume-low
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.volume_set
+                  target:
+                    entity_id:
+                      - media_player.echo_de_guilherme
+                      - media_player.echo_dot_de_guilherme
+                  data:
+                    volume_level: 0.2
+              - type: button
+                name: 50%
+                icon: mdi:volume-medium
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.volume_set
+                  target:
+                    entity_id:
+                      - media_player.echo_de_guilherme
+                      - media_player.echo_dot_de_guilherme
+                  data:
+                    volume_level: 0.5
+              - type: button
+                name: 80%
+                icon: mdi:volume-high
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.volume_set
+                  target:
+                    entity_id:
+                      - media_player.echo_de_guilherme
+                      - media_player.echo_dot_de_guilherme
+                  data:
+                    volume_level: 0.8
+
   # ------------------------------------------------------------------ Mensagens
   - title: Mensagens
     path: mensagens
@@ -469,9 +710,15 @@ views:
             icon: mdi:information-outline
           - type: markdown
             content: >-
-              As Echos usam a integracao **alexa_devices** do Home Assistant,
-              que expoe sensores, "nao perturbe" e as entidades de notificacao
-              (falar/anunciar). Ela **nao** cria `media_player`, entao nao ha
-              controle de volume, play/pause nem informacao de musica tocando
-              aqui. Para isso seria preciso configurar o HACS
-              `alexa_media_player` (ja instalado, mas nao configurado).
+              Duas integracoes convivem aqui. A **core `alexa_devices`** entrega
+              os sensores (temperatura, luz, movimento), o "nao perturbe" e as
+              entidades `notify` de falar/anunciar usadas nas outras views. A
+              **HACS `alexa_media_player`** e a que cria os `media_player` das
+              Echos, usados na view **Musica**: volume, play/pause, o que esta
+              tocando e os comandos de voz (`media_content_type: custom`).
+
+              Se a view Musica mostrar "entidade nao encontrada", o
+              `alexa_media_player` ainda nao foi configurado: Ajustes >
+              Dispositivos e servicos > Adicionar integracao > Alexa Media
+              Player, com a conta Amazon (o login abre num proxy do proprio
+              Home Assistant).
