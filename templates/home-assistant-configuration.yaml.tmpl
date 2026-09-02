@@ -1,6 +1,28 @@
 # Loads default set of integrations. Do not remove.
 default_config:
 
+homeassistant:
+  # Keep the vacuum (and its helper switches/buttons) out of Homebridge; HomeKit
+  # has no vacuum type over HAP, so they would show up as plain switches.
+  # Apple Home gets the real robot-vacuum device via Matterbridge instead.
+  customize_glob:
+    "vacuum.xiaomi_*":
+      homebridge_hidden: true
+    "switch.xiaomi_*":
+      homebridge_hidden: true
+    "button.xiaomi_*":
+      homebridge_hidden: true
+    # Scripts stay out of Homebridge by default; only the ones exposed
+    # explicitly under `customize` below show up in Apple Home.
+    "script.*":
+      homebridge_hidden: true
+  customize:
+    # Claro tv+ has no working deep link (3Ready client), so the TV input
+    # entry can't launch it directly; this script opens the Play Store page
+    # and presses OK on the focused "Open" button instead.
+    script.sala_tv_abrir_claro:
+      homebridge_hidden: false
+
 http:
   use_x_forwarded_for: true
   trusted_proxies:
@@ -25,6 +47,101 @@ recorder:
       - sensor.*_upload_speed
       - button.xiaomi_*_info
 
+# Helpers for the Echo dashboard message sender (dashboards/echo.yaml).
+input_text:
+  echo_mensagem:
+    name: Mensagem para a Echo
+    max: 255
+    icon: mdi:message-text
+
+input_select:
+  echo_alvo:
+    name: Echo de destino
+    icon: mdi:target
+    options:
+      - Echo
+      - Echo Dot
+      - Ambas
+  echo_modo:
+    name: Modo de envio
+    icon: mdi:bullhorn
+    options:
+      - Falar
+      - Anunciar
+
+# ---------------------------------------------------------------------------
+# TV Samsung do quarto (UN50J5500, 2015). A integracao samsungtv so expoe as
+# fontes "TV" e "HDMI", porque nessa geracao ela manda KEY_TV/KEY_HDMI e o
+# KEY_HDMI apenas cicla entre as portas. O servico UPnP MainTVAgent2 da propria
+# TV (porta 7677) enderecca cada entrada pelo ID, entao o media_player
+# universal abaixo troca a lista de fontes do acessorio HomeKit pelas entradas
+# reais e delega volume/mute/desligar para a entidade nativa.
+# ---------------------------------------------------------------------------
+%{ if samsung_tv_quarto_host != "" ~}
+rest_command:
+  tv_quarto_selecionar_fonte:
+    url: "http://${samsung_tv_quarto_host}:7677/MainTVServer2/control/MainTVAgent2"
+    method: post
+    content_type: 'text/xml; charset="utf-8"'
+    headers:
+      SOAPACTION: '"urn:samsung.com:service:MainTVAgent2:1#SetMainTVSource"'
+    payload: >-
+      <?xml version="1.0" encoding="utf-8"?><s:Envelope
+      xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
+      s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:SetMainTVSource
+      xmlns:u="urn:samsung.com:service:MainTVAgent2:1"><Source>{{ source
+      }}</Source><ID>{{ id }}</ID><UiID>{{ id
+      }}</UiID></u:SetMainTVSource></s:Body></s:Envelope>
+
+rest:
+  # Fonte ativa lida da propria TV, para o HomeKit marcar a entrada certa.
+  - resource: "http://${samsung_tv_quarto_host}:7677/MainTVServer2/control/MainTVAgent2"
+    method: POST
+    scan_interval: 20
+    timeout: 8
+    headers:
+      Content-Type: 'text/xml; charset="utf-8"'
+      SOAPACTION: '"urn:samsung.com:service:MainTVAgent2:1#GetCurrentExternalSource"'
+    payload: >-
+      <?xml version="1.0" encoding="utf-8"?><s:Envelope
+      xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
+      s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:GetCurrentExternalSource
+      xmlns:u="urn:samsung.com:service:MainTVAgent2:1"></u:GetCurrentExternalSource></s:Body></s:Envelope>
+    sensor:
+      - name: TV Quarto fonte atual
+        unique_id: tv_quarto_fonte_atual
+        value_template: >-
+          {{ value_json['s:Envelope']['s:Body']['u:GetCurrentExternalSourceResponse']['CurrentExternalSource'] }}
+
+template:
+  # Mesma fonte atual, mas carregando a lista de entradas como atributo: o
+  # media_player universal so aceita source_list vindo de um atributo.
+  - sensor:
+      - name: TV Quarto fonte
+        unique_id: tv_quarto_fonte
+        state: "{{ states('sensor.tv_quarto_fonte_atual') }}"
+        attributes:
+          options: "{{ ['TV', 'HDMI1', 'HDMI2', 'HDMI3/DVI'] }}"
+
+media_player:
+  - platform: universal
+    name: TV Quarto
+    unique_id: tv_quarto_universal
+    device_class: tv
+    children:
+      - media_player.tv_quarto_un50j5500
+    attributes:
+      source: sensor.tv_quarto_fonte
+      source_list: sensor.tv_quarto_fonte|options
+    commands:
+      select_source:
+        action: rest_command.tv_quarto_selecionar_fonte
+        data:
+          source: "{{ source }}"
+          # IDs vindos do GetSourceList da TV.
+          id: "{{ {'TV': 0, 'AV': 1, 'COMPONENT': 7, 'HDMI1': 13, 'HDMI2': 14, 'HDMI3/DVI': 15}.get(source, 0) }}"
+%{ endif ~}
+
 lovelace:
   mode: storage
   dashboards:
@@ -42,6 +159,27 @@ lovelace:
       show_in_sidebar: true
       require_admin: false
       filename: dashboards/aspirador-hacs.yaml
+    painel-echo:
+      mode: yaml
+      title: Echo
+      icon: mdi:account-voice
+      show_in_sidebar: true
+      require_admin: false
+      filename: dashboards/echo.yaml
+    painel-tv-quarto:
+      mode: yaml
+      title: TV Quarto
+      icon: mdi:television-classic
+      show_in_sidebar: true
+      require_admin: false
+      filename: dashboards/tv-quarto.yaml
+    painel-tv-sala:
+      mode: yaml
+      title: TV Sala
+      icon: mdi:television
+      show_in_sidebar: true
+      require_admin: false
+      filename: dashboards/tv-sala.yaml
 
 automation: !include automations.yaml
 script: !include scripts.yaml

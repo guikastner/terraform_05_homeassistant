@@ -69,7 +69,68 @@ views:
                 entity_id: button.xiaomi_ov71gl_f287_identify
 
       - type: entities
-        title: Modo e status
+        title: Selecionar modo
+        entities:
+          - entity: select.xiaomi_ov71gl_f287_sweep_mop_type
+            name: Modo
+            icon: mdi:robot-vacuum-variant
+          - entity: select.xiaomi_ov71gl_f287_mode
+            name: Succao
+            icon: mdi:fan
+          - entity: select.xiaomi_ov71gl_f287_mop_water_output_level
+            name: Saida de agua para esfregar
+            icon: mdi:water
+          - entity: select.xiaomi_ov71gl_f287_sweep_route
+            name: Caminho
+            icon: mdi:routes
+          - entity: select.xiaomi_ov71gl_f287_clean_times
+            name: Passadas
+            icon: mdi:repeat
+
+      - type: grid
+        title: Perfis de limpeza
+        columns: 2
+        square: false
+        cards:
+          - type: button
+            entity: script.aspirador_limpeza_rapida
+            name: Limpeza rapida
+            icon: mdi:run-fast
+            tap_action:
+              action: call-service
+              service: script.turn_on
+              target:
+                entity_id: script.aspirador_limpeza_rapida
+          - type: button
+            entity: script.aspirador_limpeza_diaria
+            name: Limpeza diaria
+            icon: mdi:calendar-today
+            tap_action:
+              action: call-service
+              service: script.turn_on
+              target:
+                entity_id: script.aspirador_limpeza_diaria
+          - type: button
+            entity: script.aspirador_limpeza_profunda
+            name: Limpeza profunda
+            icon: mdi:liquid-spot
+            tap_action:
+              action: call-service
+              service: script.turn_on
+              target:
+                entity_id: script.aspirador_limpeza_profunda
+          - type: button
+            entity: script.aspirador_aspirar_antes_de_esfregar
+            name: Aspirar antes de esfregar
+            icon: mdi:broom
+            tap_action:
+              action: call-service
+              service: script.turn_on
+              target:
+                entity_id: script.aspirador_aspirar_antes_de_esfregar
+
+      - type: entities
+        title: Status
         entities:
           - entity: sensor.xiaomi_ov71gl_f287_status
             name: Status
@@ -77,14 +138,6 @@ views:
             name: Bateria
           - entity: sensor.xiaomi_ov71gl_f287_charging_state
             name: Carga
-          - entity: select.xiaomi_ov71gl_f287_mode
-            name: Succao
-          - entity: select.xiaomi_ov71gl_f287_sweep_mop_type
-            name: Modo
-          - entity: select.xiaomi_ov71gl_f287_mop_water_output_level
-            name: Agua do mop
-          - entity: select.xiaomi_ov71gl_f287_clean_times
-            name: Passadas
 
       - type: grid
         title: Comodos

@@ -1,0 +1,460 @@
+title: TV Quarto
+views:
+  - title: TV Quarto
+    path: tv-quarto
+    icon: mdi:television-classic
+    type: sections
+    max_columns: 3
+    badges:
+      - type: entity
+        entity: media_player.tv_quarto
+        name: TV
+      - type: entity
+        entity: sensor.tv_quarto_fonte_atual
+        name: Fonte
+        icon: mdi:import
+      - type: entity
+        entity: media_player.tv_do_quarto
+        name: Apple TV
+        icon: mdi:apple
+
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: TV Samsung UN50J5500
+            icon: mdi:television-classic
+            badges:
+              - type: entity
+                entity: sensor.tv_quarto_fonte_atual
+          - type: media-control
+            entity: media_player.tv_quarto
+          - type: tile
+            entity: media_player.tv_quarto
+            name: Volume
+            icon: mdi:volume-high
+            features:
+              - type: media-player-volume-slider
+          - type: button
+            name: Desligar TV
+            icon: mdi:power
+            show_state: false
+            tap_action:
+              action: perform-action
+              perform_action: media_player.turn_off
+              target:
+                entity_id: media_player.tv_quarto
+          - type: markdown
+            content: >-
+              Ligar pela rede nao funciona nesta geracao: a TV so aceita
+              Wake-on-LAN por cabo e ela esta no Wi-Fi. Use o controle ou o
+              botao da TV para ligar.
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Fontes
+            icon: mdi:import
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: button
+                name: TV aberta
+                icon: mdi:antenna
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.select_source
+                  target:
+                    entity_id: media_player.tv_quarto
+                  data:
+                    source: TV
+              - type: button
+                name: HDMI1 - Apple TV
+                icon: mdi:apple
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.select_source
+                  target:
+                    entity_id: media_player.tv_quarto
+                  data:
+                    source: HDMI1
+              - type: button
+                name: HDMI2
+                icon: mdi:hdmi-port
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.select_source
+                  target:
+                    entity_id: media_player.tv_quarto
+                  data:
+                    source: HDMI2
+              - type: button
+                name: HDMI3 / DVI
+                icon: mdi:hdmi-port
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.select_source
+                  target:
+                    entity_id: media_player.tv_quarto
+                  data:
+                    source: HDMI3/DVI
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Controle remoto
+            icon: mdi:remote-tv
+          - type: grid
+            columns: 3
+            square: true
+            cards:
+              - type: button
+                name: Menu
+                icon: mdi:menu
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_MENU
+              - type: button
+                name: Cima
+                icon: mdi:chevron-up
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_UP
+              - type: button
+                name: Fonte
+                icon: mdi:import
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_SOURCE
+              - type: button
+                name: Esquerda
+                icon: mdi:chevron-left
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_LEFT
+              - type: button
+                name: OK
+                icon: mdi:circle-outline
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_ENTER
+              - type: button
+                name: Direita
+                icon: mdi:chevron-right
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_RIGHT
+              - type: button
+                name: Voltar
+                icon: mdi:arrow-u-left-top
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_RETURN
+              - type: button
+                name: Baixo
+                icon: mdi:chevron-down
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_DOWN
+              - type: button
+                name: Sair
+                icon: mdi:close
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_EXIT
+          # Volume e canal em pares verticais, como no controle fisico.
+          - type: horizontal-stack
+            cards:
+              - type: vertical-stack
+                cards:
+                  - type: button
+                    name: Vol +
+                    icon: mdi:volume-plus
+                    tap_action:
+                      action: perform-action
+                      perform_action: remote.send_command
+                      target:
+                        entity_id: remote.tv_quarto_un50j5500
+                      data:
+                        command: KEY_VOLUP
+                  - type: button
+                    name: Vol -
+                    icon: mdi:volume-minus
+                    tap_action:
+                      action: perform-action
+                      perform_action: remote.send_command
+                      target:
+                        entity_id: remote.tv_quarto_un50j5500
+                      data:
+                        command: KEY_VOLDOWN
+              - type: vertical-stack
+                cards:
+                  - type: button
+                    name: Can +
+                    icon: mdi:chevron-double-up
+                    tap_action:
+                      action: perform-action
+                      perform_action: remote.send_command
+                      target:
+                        entity_id: remote.tv_quarto_un50j5500
+                      data:
+                        command: KEY_CHUP
+                  - type: button
+                    name: Can -
+                    icon: mdi:chevron-double-down
+                    tap_action:
+                      action: perform-action
+                      perform_action: remote.send_command
+                      target:
+                        entity_id: remote.tv_quarto_un50j5500
+                      data:
+                        command: KEY_CHDOWN
+          - type: grid
+            columns: 4
+            square: false
+            cards:
+              - type: button
+                name: Mudo
+                icon: mdi:volume-mute
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_MUTE
+              - type: button
+                name: Guia
+                icon: mdi:television-guide
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_GUIDE
+              - type: button
+                name: Info
+                icon: mdi:information-outline
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_INFO
+              - type: button
+                name: Ajustes
+                icon: mdi:tune
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_quarto_un50j5500
+                  data:
+                    command: KEY_TOOLS
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Apple TV (HDMI1)
+            icon: mdi:apple
+            badges:
+              - type: entity
+                entity: media_player.tv_do_quarto
+          - type: media-control
+            entity: media_player.tv_do_quarto
+          - type: grid
+            columns: 3
+            square: true
+            cards:
+              - type: button
+                name: Menu
+                icon: mdi:arrow-u-left-top
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_do_quarto
+                  data:
+                    command: menu
+              - type: button
+                name: Cima
+                icon: mdi:chevron-up
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_do_quarto
+                  data:
+                    command: up
+              - type: button
+                name: Home
+                icon: mdi:home
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_do_quarto
+                  data:
+                    command: home
+              - type: button
+                name: Esquerda
+                icon: mdi:chevron-left
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_do_quarto
+                  data:
+                    command: left
+              - type: button
+                name: OK
+                icon: mdi:circle-outline
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_do_quarto
+                  data:
+                    command: select
+              - type: button
+                name: Direita
+                icon: mdi:chevron-right
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_do_quarto
+                  data:
+                    command: right
+              - type: button
+                name: Play/Pause
+                icon: mdi:play-pause
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_play_pause
+                  target:
+                    entity_id: media_player.tv_do_quarto
+              - type: button
+                name: Baixo
+                icon: mdi:chevron-down
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.tv_do_quarto
+                  data:
+                    command: down
+              - type: button
+                name: Dormir
+                icon: mdi:power-sleep
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.turn_off
+                  target:
+                    entity_id: media_player.tv_do_quarto
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Ambiente do quarto
+            icon: mdi:bed
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: button
+                name: TV confortavel
+                icon: mdi:television-ambient-light
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.gui_kastner_hotmail_com_tv_confortavel
+              - type: button
+                name: Luz azul no quarto
+                icon: mdi:lightbulb-night
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.gui_kastner_hotmail_com_luz_azul_no_quarto
+              - type: button
+                name: Apagar
+                icon: mdi:lightbulb-off
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.gui_kastner_hotmail_com_apagar
+              - type: button
+                name: Hora de dormir
+                icon: mdi:sleep
+                tap_action:
+                  action: perform-action
+                  perform_action: notify.send_message
+                  target:
+                    entity_id: notify.todo_lugar_announce
+                  data:
+                    message: Hora de dormir!
+
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: Historico
+            icon: mdi:chart-line
+          - type: history-graph
+            title: TV e fonte (24h)
+            hours_to_show: 24
+            entities:
+              - entity: media_player.tv_quarto
+                name: TV Quarto
+              - entity: sensor.tv_quarto_fonte_atual
+                name: Fonte
+              - entity: media_player.tv_do_quarto
+                name: Apple TV
+          - type: logbook
+            target:
+              entity_id:
+                - media_player.tv_quarto
+                - media_player.tv_do_quarto
+            hours_to_show: 24

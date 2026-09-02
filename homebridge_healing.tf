@@ -8,6 +8,40 @@ resource "null_resource" "homebridge_maintenance_dir" {
   depends_on = [null_resource.homebridge_data_dir]
 }
 
+# Mounted over /defaults/avahi-daemon.conf: the image's setup script copies that
+# file to /etc/avahi/avahi-daemon.conf on every container start, so this is the
+# only spot where the config survives restarts. Without allow-interfaces, Avahi
+# in host network mode probes every Docker bridge/veth and the constant
+# interface churn keeps it stuck in "registering", so the HAP bridge is never
+# announced via mDNS and HomeKit shows "No Response".
+resource "local_file" "homebridge_avahi_conf" {
+  count           = var.homebridge_enabled ? 1 : 0
+  filename        = local.homebridge_avahi_conf
+  file_permission = "0644"
+  content         = <<-CONF
+    [server]
+    #host-name=
+    allow-interfaces=${var.homebridge_avahi_allow_interfaces}
+    use-ipv4=yes
+    use-ipv6=no
+    enable-dbus=yes
+    ratelimit-interval-usec=1000000
+    ratelimit-burst=1000
+
+    [wide-area]
+    enable-wide-area=yes
+
+    [rlimits]
+    rlimit-core=0
+    rlimit-data=4194304
+    rlimit-fsize=0
+    rlimit-nofile=768
+    rlimit-stack=4194304
+  CONF
+
+  depends_on = [null_resource.homebridge_maintenance_dir]
+}
+
 resource "local_file" "homebridge_androidtv_healer_script" {
   count           = var.homebridge_enabled ? 1 : 0
   filename        = local.homebridge_androidtv_healer_job

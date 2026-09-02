@@ -1,0 +1,477 @@
+title: Echo
+views:
+  # ---------------------------------------------------------------- Visao geral
+  - title: Visao geral
+    path: visao-geral
+    icon: mdi:account-voice
+    type: sections
+    max_columns: 3
+    badges:
+      - type: entity
+        entity: binary_sensor.echo_de_guilherme_connectivity
+        name: Echo
+      - type: entity
+        entity: binary_sensor.echo_dot_de_guilherme_connectivity
+        name: Echo Dot
+      - type: entity
+        entity: sensor.echo_de_guilherme_temperature
+        name: Temperatura
+      - type: entity
+        entity: binary_sensor.echo_de_guilherme_motion
+        name: Movimento
+        visibility:
+          - condition: state
+            entity: binary_sensor.echo_de_guilherme_motion
+            state: "on"
+
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Echo de Guilherme
+            icon: mdi:speaker
+            badges:
+              - type: entity
+                entity: binary_sensor.echo_de_guilherme_connectivity
+          - type: tile
+            entity: sensor.echo_de_guilherme_temperature
+            name: Temperatura
+            icon: mdi:thermometer
+          - type: tile
+            entity: sensor.echo_de_guilherme_illuminance
+            name: Luminosidade
+            icon: mdi:brightness-6
+          - type: tile
+            entity: binary_sensor.echo_de_guilherme_motion
+            name: Movimento
+            icon: mdi:motion-sensor
+          - type: tile
+            entity: switch.echo_de_guilherme_do_not_disturb
+            name: Nao perturbe
+            icon: mdi:minus-circle
+            tap_action:
+              action: toggle
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Echo Dot de Guilherme
+            icon: mdi:speaker-wireless
+            badges:
+              - type: entity
+                entity: binary_sensor.echo_dot_de_guilherme_connectivity
+          - type: tile
+            entity: binary_sensor.echo_dot_de_guilherme_connectivity
+            name: Conectividade
+            icon: mdi:wifi
+          - type: tile
+            entity: switch.echo_dot_de_guilherme_do_not_disturb
+            name: Nao perturbe
+            icon: mdi:minus-circle
+            tap_action:
+              action: toggle
+          - type: markdown
+            content: >-
+              O Echo Dot nao tem sensores de temperatura, luz ou movimento;
+              so o Echo maior reporta esses valores.
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Alarmes, timers e lembretes
+            icon: mdi:alarm
+          - type: entities
+            title: Echo
+            entities:
+              - entity: sensor.echo_de_guilherme_next_alarm
+                name: Proximo alarme
+                icon: mdi:alarm
+              - entity: sensor.echo_de_guilherme_next_timer
+                name: Proximo timer
+                icon: mdi:timer-outline
+              - entity: sensor.echo_de_guilherme_next_reminder
+                name: Proximo lembrete
+                icon: mdi:reminder
+          - type: entities
+            title: Echo Dot
+            entities:
+              - entity: sensor.echo_dot_de_guilherme_next_alarm
+                name: Proximo alarme
+                icon: mdi:alarm
+              - entity: sensor.echo_dot_de_guilherme_next_timer
+                name: Proximo timer
+                icon: mdi:timer-outline
+              - entity: sensor.echo_dot_de_guilherme_next_reminder
+                name: Proximo lembrete
+                icon: mdi:reminder
+          - type: markdown
+            content: >-
+              Alarmes e timers so podem ser criados falando com a Alexa; a
+              integracao `alexa_devices` do Home Assistant apenas le o proximo
+              de cada tipo.
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Silenciar tudo
+            icon: mdi:bell-off
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: button
+                name: Nao perturbe ON
+                icon: mdi:bell-off
+                tap_action:
+                  action: perform-action
+                  perform_action: switch.turn_on
+                  target:
+                    entity_id:
+                      - switch.echo_de_guilherme_do_not_disturb
+                      - switch.echo_dot_de_guilherme_do_not_disturb
+              - type: button
+                name: Nao perturbe OFF
+                icon: mdi:bell-ring
+                tap_action:
+                  action: perform-action
+                  perform_action: switch.turn_off
+                  target:
+                    entity_id:
+                      - switch.echo_de_guilherme_do_not_disturb
+                      - switch.echo_dot_de_guilherme_do_not_disturb
+
+  # ------------------------------------------------------------------ Mensagens
+  - title: Mensagens
+    path: mensagens
+    icon: mdi:message-text
+    type: sections
+    max_columns: 3
+    badges:
+      - type: entity
+        entity: input_select.echo_alvo
+        name: Destino
+      - type: entity
+        entity: input_select.echo_modo
+        name: Modo
+
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Escrever e enviar
+            icon: mdi:send
+          - type: entities
+            entities:
+              - entity: input_text.echo_mensagem
+                name: Mensagem
+              - entity: input_select.echo_alvo
+                name: Destino
+              - entity: input_select.echo_modo
+                name: Modo
+          - type: button
+            name: Enviar
+            icon: mdi:send
+            tap_action:
+              action: perform-action
+              perform_action: script.turn_on
+              target:
+                entity_id: script.echo_enviar_mensagem
+          - type: markdown
+            content: >-
+              **Falar** usa a voz normal da Alexa. **Anunciar** toca o som de
+              anuncio antes da mensagem e aparece como notificacao no app.
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Atalhos de destino e modo
+            icon: mdi:target
+          # Cards Lovelace nao renderizam templates, entao os atalhos ajustam
+          # os seletores e o envio continua saindo pelo script, que le o texto.
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: button
+                name: So no Echo
+                icon: mdi:speaker
+                tap_action:
+                  action: perform-action
+                  perform_action: input_select.select_option
+                  target:
+                    entity_id: input_select.echo_alvo
+                  data:
+                    option: Echo
+              - type: button
+                name: So no Echo Dot
+                icon: mdi:speaker-wireless
+                tap_action:
+                  action: perform-action
+                  perform_action: input_select.select_option
+                  target:
+                    entity_id: input_select.echo_alvo
+                  data:
+                    option: Echo Dot
+              - type: button
+                name: Nas duas
+                icon: mdi:speaker-multiple
+                tap_action:
+                  action: perform-action
+                  perform_action: input_select.select_option
+                  target:
+                    entity_id: input_select.echo_alvo
+                  data:
+                    option: Ambas
+              - type: button
+                name: Modo falar
+                icon: mdi:account-voice
+                tap_action:
+                  action: perform-action
+                  perform_action: input_select.select_option
+                  target:
+                    entity_id: input_select.echo_modo
+                  data:
+                    option: Falar
+              - type: button
+                name: Modo anunciar
+                icon: mdi:bullhorn
+                tap_action:
+                  action: perform-action
+                  perform_action: input_select.select_option
+                  target:
+                    entity_id: input_select.echo_modo
+                  data:
+                    option: Anunciar
+              - type: button
+                name: Enviar agora
+                icon: mdi:send
+                tap_action:
+                  action: perform-action
+                  perform_action: script.turn_on
+                  target:
+                    entity_id: script.echo_enviar_mensagem
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Anuncios rapidos (todas as Echos)
+            icon: mdi:bullhorn
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: button
+                name: Jantar pronto
+                icon: mdi:silverware-fork-knife
+                tap_action:
+                  action: perform-action
+                  perform_action: notify.send_message
+                  target:
+                    entity_id: notify.todo_lugar_announce
+                  data:
+                    message: O jantar esta pronto!
+              - type: button
+                name: Ja vou
+                icon: mdi:run
+                tap_action:
+                  action: perform-action
+                  perform_action: notify.send_message
+                  target:
+                    entity_id: notify.todo_lugar_announce
+                  data:
+                    message: Ja estou indo!
+              - type: button
+                name: Hora de dormir
+                icon: mdi:sleep
+                tap_action:
+                  action: perform-action
+                  perform_action: notify.send_message
+                  target:
+                    entity_id: notify.todo_lugar_announce
+                  data:
+                    message: Hora de dormir!
+              - type: button
+                name: Vem aqui
+                icon: mdi:hand-wave
+                tap_action:
+                  action: perform-action
+                  perform_action: notify.send_message
+                  target:
+                    entity_id: notify.todo_lugar_announce
+                  data:
+                    message: Vem aqui, por favor!
+              - type: button
+                name: Bom dia
+                icon: mdi:weather-sunny
+                tap_action:
+                  action: perform-action
+                  perform_action: notify.send_message
+                  target:
+                    entity_id: notify.todo_lugar_announce
+                  data:
+                    message: Bom dia! Hora de acordar.
+              - type: button
+                name: Chegou visita
+                icon: mdi:door-open
+                tap_action:
+                  action: perform-action
+                  perform_action: notify.send_message
+                  target:
+                    entity_id: notify.todo_lugar_announce
+                  data:
+                    message: Tem alguem na porta!
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Relaxamento
+            icon: mdi:meditation
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: button
+                name: Hora de relaxar
+                icon: mdi:spa
+                tap_action:
+                  action: perform-action
+                  perform_action: notify.send_message
+                  target:
+                    entity_id: notify.relaxamento_announce
+                  data:
+                    message: Hora de relaxar.
+              - type: button
+                name: Boa noite
+                icon: mdi:weather-night
+                tap_action:
+                  action: perform-action
+                  perform_action: notify.send_message
+                  target:
+                    entity_id: notify.relaxamento_announce
+                  data:
+                    message: Boa noite, durma bem.
+
+  # ----------------------------------------------------------- Rotinas/historico
+  - title: Rotinas e historico
+    path: rotinas
+    icon: mdi:playlist-play
+    type: sections
+    max_columns: 3
+
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Rotinas Alexa
+            icon: mdi:playlist-play
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: button
+                name: Bom dia
+                icon: mdi:weather-sunny
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.gui_kastner_hotmail_com_alexa_bom_dia
+              - type: button
+                name: Apagar
+                icon: mdi:lightbulb-off
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.gui_kastner_hotmail_com_apagar
+              - type: button
+                name: Luz 50%
+                icon: mdi:brightness-6
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.gui_kastner_hotmail_com_luz_50
+              - type: button
+                name: Luz branca
+                icon: mdi:lightbulb-on
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.gui_kastner_hotmail_com_luz_branca
+              - type: button
+                name: TV confortavel
+                icon: mdi:television-ambient-light
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.gui_kastner_hotmail_com_tv_confortavel
+              - type: button
+                name: Luz azul fraca
+                icon: mdi:lightbulb-night
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.gui_kastner_hotmail_com_luz_azul_fraca
+              - type: button
+                name: Luz azul no quarto
+                icon: mdi:bed
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.gui_kastner_hotmail_com_luz_azul_no_quarto
+
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: Historico
+            icon: mdi:chart-line
+          - type: history-graph
+            title: Temperatura (24h)
+            hours_to_show: 24
+            entities:
+              - entity: sensor.echo_de_guilherme_temperature
+                name: Temperatura
+          - type: history-graph
+            title: Luminosidade e movimento (24h)
+            hours_to_show: 24
+            entities:
+              - entity: sensor.echo_de_guilherme_illuminance
+                name: Luminosidade
+              - entity: binary_sensor.echo_de_guilherme_motion
+                name: Movimento
+          - type: history-graph
+            title: Conectividade (24h)
+            hours_to_show: 24
+            entities:
+              - entity: binary_sensor.echo_de_guilherme_connectivity
+                name: Echo
+              - entity: binary_sensor.echo_dot_de_guilherme_connectivity
+                name: Echo Dot
+          - type: logbook
+            target:
+              entity_id:
+                - binary_sensor.echo_de_guilherme_motion
+                - switch.echo_de_guilherme_do_not_disturb
+                - switch.echo_dot_de_guilherme_do_not_disturb
+                - script.echo_enviar_mensagem
+            hours_to_show: 24
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Sobre esta integracao
+            icon: mdi:information-outline
+          - type: markdown
+            content: >-
+              As Echos usam a integracao **alexa_devices** do Home Assistant,
+              que expoe sensores, "nao perturbe" e as entidades de notificacao
+              (falar/anunciar). Ela **nao** cria `media_player`, entao nao ha
+              controle de volume, play/pause nem informacao de musica tocando
+              aqui. Para isso seria preciso configurar o HACS
+              `alexa_media_player` (ja instalado, mas nao configurado).

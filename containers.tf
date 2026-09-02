@@ -159,6 +159,13 @@ resource "docker_container" "homebridge" {
     type   = "bind"
   }
 
+  mounts {
+    target    = "/defaults/avahi-daemon.conf"
+    source    = local.homebridge_avahi_conf
+    type      = "bind"
+    read_only = true
+  }
+
   healthcheck {
     test         = ["CMD-SHELL", "curl -fsS http://127.0.0.1:${var.homebridge_ui_port}/ >/dev/null && node -e 'const net=require(\"net\"); const cfg=require(\"/homebridge/config.json\"); const port=Number(cfg.bridge&&cfg.bridge.port); if (!port) process.exit(0); const s=net.createConnection({host:\"127.0.0.1\",port,timeout:3000},()=>{s.end();process.exit(0)}); s.on(\"timeout\",()=>{s.destroy();process.exit(1)}); s.on(\"error\",()=>process.exit(1));'"]
     interval     = "30s"
@@ -193,6 +200,7 @@ resource "docker_container" "homebridge" {
   depends_on = [
     null_resource.main_network,
     null_resource.homebridge_data_dir,
+    local_file.homebridge_avahi_conf,
   ]
 }
 

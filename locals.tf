@@ -35,6 +35,7 @@ locals {
   homebridge_maintenance_dir        = abspath("${local.homebridge_data_dir}/maintenance")
   homebridge_androidtv_healer_job   = abspath("${local.homebridge_maintenance_dir}/heal_androidtv_remote.sh")
   homebridge_androidtv_healer_log   = abspath("${local.homebridge_maintenance_dir}/heal_androidtv_remote.log")
+  homebridge_avahi_conf             = abspath("${local.homebridge_maintenance_dir}/avahi-daemon.conf")
   node_red_generated_dir            = abspath("${path.module}/build/node-red")
   node_red_settings_path            = abspath("${local.node_red_generated_dir}/settings.js")
   node_red_admin_password_hash_path = abspath("${local.node_red_generated_dir}/admin-password.hash")
