@@ -33,7 +33,8 @@ resource "local_file" "home_assistant_configuration" {
   content = templatefile(
     "${path.module}/templates/home-assistant-configuration.yaml.tmpl",
     {
-      trusted_proxies = var.home_assistant_trusted_proxies
+      trusted_proxies        = var.home_assistant_trusted_proxies
+      samsung_tv_quarto_host = var.samsung_tv_quarto_host
     }
   )
 
@@ -133,6 +134,30 @@ resource "local_file" "home_assistant_vacuum_hacs_dashboard" {
   filename        = "${local.home_assistant_data_dir}/dashboards/aspirador-hacs.yaml"
   file_permission = "0644"
   content         = file("${path.module}/templates/aspirador-hacs.yaml")
+
+  depends_on = [null_resource.home_assistant_data_files]
+}
+
+resource "local_file" "home_assistant_echo_dashboard" {
+  filename        = "${local.home_assistant_data_dir}/dashboards/echo.yaml"
+  file_permission = "0644"
+  content         = file("${path.module}/templates/echo.yaml")
+
+  depends_on = [null_resource.home_assistant_data_files]
+}
+
+resource "local_file" "home_assistant_tv_quarto_dashboard" {
+  filename        = "${local.home_assistant_data_dir}/dashboards/tv-quarto.yaml"
+  file_permission = "0644"
+  content         = file("${path.module}/templates/tv-quarto.yaml")
+
+  depends_on = [null_resource.home_assistant_data_files]
+}
+
+resource "local_file" "home_assistant_tv_sala_dashboard" {
+  filename        = "${local.home_assistant_data_dir}/dashboards/tv-sala.yaml"
+  file_permission = "0644"
+  content         = file("${path.module}/templates/tv-sala.yaml")
 
   depends_on = [null_resource.home_assistant_data_files]
 }

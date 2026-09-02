@@ -15,8 +15,14 @@ variable "docker_log_opts" {
   type        = map(string)
   default = {
     max-size = "50m"
-    max-file = "3"
+    max-file = "2"
   }
+}
+
+variable "homebridge_avahi_allow_interfaces" {
+  description = "Interfaces the in-container Avahi daemon may use. Restricting to the LAN interface keeps mDNS registration from stalling on Docker bridge/veth churn in host network mode."
+  type        = string
+  default     = "wlan0"
 }
 
 variable "base_domain" {
@@ -64,6 +70,12 @@ variable "home_assistant_trusted_proxies" {
   description = "Trusted reverse-proxy CIDRs/IPs for Home Assistant when running behind Cloudflare Tunnel."
   type        = list(string)
   default     = ["172.17.0.0/16"]
+}
+
+variable "samsung_tv_quarto_host" {
+  description = "IP/host da TV Samsung do quarto (UN50J5500). Usada pelas chamadas SOAP MainTVAgent2 que trocam a entrada; vazio desabilita o media_player universal \"TV Quarto\"."
+  type        = string
+  default     = "192.168.0.116"
 }
 
 variable "home_assistant_image" {

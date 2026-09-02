@@ -1,0 +1,600 @@
+title: TV Sala
+views:
+  - title: TV Sala
+    path: tv-sala
+    icon: mdi:television
+    type: sections
+    max_columns: 3
+    badges:
+      - type: entity
+        entity: media_player.sala_de_tv_2
+        name: TV
+      - type: entity
+        entity: media_player.sala_de_tv
+        name: Cast
+        icon: mdi:cast
+      - type: entity
+        entity: media_player.sala_de_tv_3
+        name: DLNA
+        icon: mdi:volume-high
+
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: TV TCL (Android TV)
+            icon: mdi:television
+            badges:
+              - type: entity
+                entity: media_player.sala_de_tv_2
+          - type: media-control
+            entity: media_player.sala_de_tv_2
+          - type: tile
+            entity: media_player.sala_de_tv_2
+            name: Volume
+            icon: mdi:volume-high
+            features:
+              - type: media-player-volume-slider
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: button
+                name: Ligar TV
+                icon: mdi:power
+                show_state: false
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.turn_on
+                  target:
+                    entity_id: media_player.sala_de_tv_2
+              - type: button
+                name: Desligar TV
+                icon: mdi:power-off
+                show_state: false
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.turn_off
+                  target:
+                    entity_id: media_player.sala_de_tv_2
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Fontes e apps
+            icon: mdi:import
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: button
+                name: HDMI1
+                icon: mdi:hdmi-port
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_TV_INPUT_HDMI_1
+              - type: button
+                name: HDMI2
+                icon: mdi:hdmi-port
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_TV_INPUT_HDMI_2
+              - type: button
+                name: TV aberta
+                icon: mdi:antenna
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_TV
+              - type: button
+                name: Trocar fonte
+                icon: mdi:import
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_TV_INPUT
+          # Apps abrem por deep link do Play Store (market://launch), o mesmo
+          # formato usado pelo script da Claro, que e o que funciona nesta TV.
+          - type: grid
+            columns: 3
+            square: false
+            cards:
+              - type: button
+                name: Claro tv+
+                icon: mdi:television-box
+                tap_action:
+                  action: perform-action
+                  perform_action: script.turn_on
+                  target:
+                    entity_id: script.sala_tv_abrir_claro
+              - type: button
+                name: YouTube
+                icon: mdi:youtube
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.turn_on
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    activity: market://launch?id=com.google.android.youtube.tv
+              - type: button
+                name: Netflix
+                icon: mdi:netflix
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.turn_on
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    activity: market://launch?id=com.netflix.ninja
+              - type: button
+                name: Disney+
+                icon: mdi:movie-open
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.turn_on
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    activity: market://launch?id=com.disney.disneyplus
+              - type: button
+                name: Prime Video
+                icon: mdi:filmstrip
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.turn_on
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    activity: market://launch?id=com.amazon.amazonvideo.livingroom
+              - type: button
+                name: Crunchyroll
+                icon: mdi:television-play
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.turn_on
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    activity: market://launch?id=com.crunchyroll.crunchyroid
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Controle remoto
+            icon: mdi:remote-tv
+          - type: grid
+            columns: 3
+            square: true
+            cards:
+              - type: button
+                name: Menu
+                icon: mdi:menu
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_MENU
+              - type: button
+                name: Cima
+                icon: mdi:chevron-up
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_DPAD_UP
+              - type: button
+                name: Home
+                icon: mdi:home
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_HOME
+              - type: button
+                name: Esquerda
+                icon: mdi:chevron-left
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_DPAD_LEFT
+              - type: button
+                name: OK
+                icon: mdi:circle-outline
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_DPAD_CENTER
+              - type: button
+                name: Direita
+                icon: mdi:chevron-right
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_DPAD_RIGHT
+              - type: button
+                name: Voltar
+                icon: mdi:arrow-u-left-top
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_BACK
+              - type: button
+                name: Baixo
+                icon: mdi:chevron-down
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_DPAD_DOWN
+              - type: button
+                name: Apps
+                icon: mdi:view-grid
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_ALL_APPS
+          # Volume e canal em pares verticais, como no controle fisico.
+          - type: horizontal-stack
+            cards:
+              - type: vertical-stack
+                cards:
+                  - type: button
+                    name: Vol +
+                    icon: mdi:volume-plus
+                    tap_action:
+                      action: perform-action
+                      perform_action: remote.send_command
+                      target:
+                        entity_id: remote.sala_de_tv
+                      data:
+                        command: KEYCODE_VOLUME_UP
+                  - type: button
+                    name: Vol -
+                    icon: mdi:volume-minus
+                    tap_action:
+                      action: perform-action
+                      perform_action: remote.send_command
+                      target:
+                        entity_id: remote.sala_de_tv
+                      data:
+                        command: KEYCODE_VOLUME_DOWN
+              - type: vertical-stack
+                cards:
+                  - type: button
+                    name: Can +
+                    icon: mdi:chevron-double-up
+                    tap_action:
+                      action: perform-action
+                      perform_action: remote.send_command
+                      target:
+                        entity_id: remote.sala_de_tv
+                      data:
+                        command: KEYCODE_CHANNEL_UP
+                  - type: button
+                    name: Can -
+                    icon: mdi:chevron-double-down
+                    tap_action:
+                      action: perform-action
+                      perform_action: remote.send_command
+                      target:
+                        entity_id: remote.sala_de_tv
+                      data:
+                        command: KEYCODE_CHANNEL_DOWN
+          - type: grid
+            columns: 4
+            square: false
+            cards:
+              - type: button
+                name: Mudo
+                icon: mdi:volume-mute
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_MUTE
+              - type: button
+                name: Guia
+                icon: mdi:television-guide
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_GUIDE
+              - type: button
+                name: Info
+                icon: mdi:information-outline
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_INFO
+              - type: button
+                name: Ajustes
+                icon: mdi:tune
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_SETTINGS
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Canais (teclado numerico)
+            icon: mdi:dialpad
+          - type: grid
+            columns: 3
+            square: true
+            cards:
+              - type: button
+                name: "1"
+                show_icon: false
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_1
+              - type: button
+                name: "2"
+                show_icon: false
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_2
+              - type: button
+                name: "3"
+                show_icon: false
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_3
+              - type: button
+                name: "4"
+                show_icon: false
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_4
+              - type: button
+                name: "5"
+                show_icon: false
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_5
+              - type: button
+                name: "6"
+                show_icon: false
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_6
+              - type: button
+                name: "7"
+                show_icon: false
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_7
+              - type: button
+                name: "8"
+                show_icon: false
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_8
+              - type: button
+                name: "9"
+                show_icon: false
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_9
+              - type: button
+                name: Apagar
+                icon: mdi:backspace-outline
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_DEL
+              - type: button
+                name: "0"
+                show_icon: false
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_0
+              - type: button
+                name: Confirmar
+                icon: mdi:check
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_DPAD_CENTER
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: button
+                name: Ultimo canal
+                icon: mdi:swap-horizontal
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_LAST_CHANNEL
+              - type: button
+                name: Legendas
+                icon: mdi:closed-caption
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_CAPTIONS
+          - type: markdown
+            content: >-
+              Os numeros so mudam de canal quando a TV esta na fonte de TV
+              aberta ou dentro de um app de TV ao vivo; em apps de streaming
+              eles nao fazem nada.
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Reproducao
+            icon: mdi:play-circle
+          - type: grid
+            columns: 5
+            square: true
+            cards:
+              - type: button
+                name: Voltar
+                icon: mdi:rewind
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_MEDIA_REWIND
+              - type: button
+                name: Anterior
+                icon: mdi:skip-previous
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_previous_track
+                  target:
+                    entity_id: media_player.sala_de_tv_2
+              - type: button
+                name: Play/Pause
+                icon: mdi:play-pause
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_play_pause
+                  target:
+                    entity_id: media_player.sala_de_tv_2
+              - type: button
+                name: Proximo
+                icon: mdi:skip-next
+                tap_action:
+                  action: perform-action
+                  perform_action: media_player.media_next_track
+                  target:
+                    entity_id: media_player.sala_de_tv_2
+              - type: button
+                name: Avancar
+                icon: mdi:fast-forward
+                tap_action:
+                  action: perform-action
+                  perform_action: remote.send_command
+                  target:
+                    entity_id: remote.sala_de_tv
+                  data:
+                    command: KEYCODE_MEDIA_FAST_FORWARD
+          - type: media-control
+            entity: media_player.sala_de_tv
+
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: Historico
+            icon: mdi:chart-line
+          - type: history-graph
+            title: TV da sala (24h)
+            hours_to_show: 24
+            entities:
+              - entity: media_player.sala_de_tv_2
+                name: TV TCL
+              - entity: media_player.sala_de_tv
+                name: Cast
+          - type: logbook
+            target:
+              entity_id:
+                - media_player.sala_de_tv_2
+                - media_player.sala_de_tv
+            hours_to_show: 24
